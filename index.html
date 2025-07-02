@@ -1,4 +1,4 @@
-THIS SHOULD BE A LINTER ERROR<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -134,13 +134,35 @@ THIS SHOULD BE A LINTER ERROR<!DOCTYPE html>
             transform: translateY(0);
         }
 
-        .character-card img {
+
+
+        /* CSS-заглушки для изображений */
+        .image-placeholder {
             width: 100%;
-            height: auto;
+            height: 200px;
+            background: linear-gradient(135deg, var(--border-color), var(--primary-color));
             border-top-left-radius: var(--border-radius);
             border-top-right-radius: var(--border-radius);
-            display: block;
-            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            font-size: 18px;
+            font-weight: 500;
+            text-align: center;
+            position: relative;
+        }
+
+        .image-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
         }
 
         .character-info {
@@ -320,7 +342,7 @@ THIS SHOULD BE A LINTER ERROR<!DOCTYPE html>
                 <button id="submit-btn" class="submit-btn">Проверить</button>
             </div>
             <div id="character-card-nurse" class="character-card">
-                <img src="https://via.placeholder.com/600x400/d7ccc8/5d4037?text=Медсестра+Алина" alt="Фотография медсестры Алины Сомовой в рабочей обстановке">
+                <div class="image-placeholder">Медсестра Алина</div>
                 <div class="character-info">
                     <h2>Медсестра</h2>
                     <ul class="character-data">
@@ -344,7 +366,7 @@ THIS SHOULD BE A LINTER ERROR<!DOCTYPE html>
         <div class="dilemma-choices">
             <!-- Карточка 1: Подросток -->
             <div class="character-card">
-                <img src="https://via.placeholder.com/600x400/d7ccc8/5d4037?text=Катя+Морозова" alt="Портрет Екатерины Морозовой">
+                <div class="image-placeholder">Катя Морозова</div>
                 <div class="character-info">
                     <h2>Подросток: Екатерина Морозова</h2>
                     <ul class="character-data">
@@ -356,7 +378,7 @@ THIS SHOULD BE A LINTER ERROR<!DOCTYPE html>
             </div>
             <!-- Карточка 2: Ученый -->
             <div class="character-card">
-                <img src="https://placehold.co/600x400/d7ccc8/5d4037?text=Профессор" alt="Портрет Профессора Кудряшова">
+                <div class="image-placeholder">Профессор Кудряшов</div>
                 <div class="character-info">
                     <h2>Ученый: Профессор Кудряшов И.С.</h2>
                     <ul class="character-data">

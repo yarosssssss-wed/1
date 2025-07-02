@@ -1,0 +1,20 @@
+{
+  "name": "quest-professions-dilemma",
+  "version": "1.0.0",
+  "description": "Интерактивный веб-квест с этической дилеммой",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "serve": "python3 -m http.server 3000",
+    "build": "echo 'Статический сайт не требует сборки' && exit 0"
+  },
+  "keywords": [
+    "quiz",
+    "ethical-dilemma", 
+    "interactive",
+    "web-quest",
+    "профессии"
+  ],
+  "author": "",
+  "license": "MIT"
+}
