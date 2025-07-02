@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квест по профессиям: Диллема</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Общие стили и переменные (Белая тема) --- */
+        :root {
+            --primary-bg: #ffffff;
+            --card-bg: #ffffff;
+            --text-color: #5d4037;
+            --primary-color: #a1887f;
+            --primary-hover-color: #795548;
+            --error-color: #ef4444;
+            --border-color: #d7ccc8;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: background-color 0.5s;
+        }
+
+        /* --- Контейнеры этапов --- */
+        .quest-stage {
+            width: 100%;
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .quest-stage.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            position: absolute;
+            pointer-events: none;
+        }
+
+        /* --- Этап 1: Загадка --- */
+        #riddle-container {
+            max-width: 500px;
+        }
+
+        .input-form {
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .profession-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .profession-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(161, 136, 127, 0.2);
+        }
+
+        .profession-input::placeholder {
+            color: #b0a49e;
+        }
+
+        .submit-btn, .dilemma-btn, .choice-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover, .dilemma-btn:hover, .choice-btn:hover {
+            background-color: var(--primary-hover-color);
+        }
+        
+        .submit-btn:active, .dilemma-btn:active, .choice-btn:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+
+        .shake-animation {
+            animation: shake 0.5s ease-in-out;
+            border-color: var(--error-color) !important;
+        }
+
+        /* --- Карточка персонажа (общие стили) --- */
+        .character-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        #character-card-nurse {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            display: none;
+        }
+        
+        #character-card-nurse.visible {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .character-card img {
+            width: 100%;
+            height: auto;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+            display: block;
+            background-color: #e0e0e0;
+        }
+
+        .character-info {
+            padding: 25px;
+        }
+
+        .character-info h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: var(--primary-hover-color);
+        }
+
+        .character-data {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            border-left: 3px solid var(--primary-color);
+            padding-left: 15px;
+        }
+
+        .character-data li {
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .character-data strong {
+            font-weight: 500;
+            color: #757575;
+        }
+        
+        .character-info p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin: 0 0 15px 0;
+        }
+        
+        .bio {
+            font-style: italic;
+            color: #8d6e63;
+        }
+
+        .summary {
+            background-color: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eeeeee;
+        }
+        
+        .dilemma-btn {
+            display: none;
+        }
+
+        /* --- Этап 2: Диллема --- */
+        #dilemma-container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .dilemma-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .dilemma-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: var(--primary-hover-color);
+        }
+
+        .dilemma-header p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .dilemma-choices {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            justify-content: center;
+        }
+        
+        .dilemma-choices .character-card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+            margin-top: 0;
+        }
+
+        .dilemma-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .choice-btn {
+            padding: 12px 24px;
+            width: auto;
+        }
+
+        /* --- Этап 3: Результат --- */
+        #result-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .result-content {
+            background: var(--card-bg);
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .result-content.hidden {
+            display: none;
+        }
+
+        .result-content h1 {
+            text-align: center;
+            color: var(--primary-hover-color);
+            margin-bottom: 30px;
+        }
+
+        .result-content h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .result-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .result-content li {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .result-content li strong {
+            color: var(--text-color);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .result-content .conclusion {
+            font-style: italic;
+            margin-top: 30px;
+            background-color: #fafafa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .dilemma-choices, .dilemma-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Этап 1: Загадка -->
+    <div id="riddle-container" class="quest-stage">
+        <main class="quest-container">
+            <div id="input-form">
+                <input type="text" id="profession-input" class="profession-input" placeholder="Введи название профессии">
+                <button id="submit-btn" class="submit-btn">Проверить</button>
+            </div>
+            <div id="character-card-nurse" class="character-card">
+                <img src="https://i.ibb.co/L5Bwz6c/IMG-0323.jpg" alt="Фотография медсестры Алины Сомовой в рабочей обстановке">
+                <div class="character-info">
+                    <h2>Медсестра</h2>
+                    <ul class="character-data">
+                        <li><strong>ФИО:</strong> Сомова Алина Сергеевна</li>
+                        <li><strong>Возраст:</strong> 29 лет</li>
+                    </ul>
+                    <p class="bio">Работает медсестрой в реанимации. Профессию выбрала, чтобы спасать людей, но бесконечные смены, стресс и чужая боль оставили на ней глубокие шрамы. Днём она — собранный и решительный профессионал, чей голос не дрогнет в самой критической ситуации. За пределами работы она заботится о сыне. Внутри неё растёт огромная усталость, которую она пытается заглушить работой и заботой о сыне.</p>
+                    <p class="summary">Алина — медсестра в реанимации, которая каждый день балансирует на грани цинизма и сострадания. Она прячет свою усталость за профессионализмом, но её тайная мечта — сбежать от всего и открыть маленькую гончарную мастерскую у моря. Единственная её отдушина — мечты о тихой жизни, где её руки будут делать не уколы, а глиняные чашки, и единственным звуком будет шум прибоя, а не писк аппаратуры.</p>
+                    <button id="dilemma-btn" class="dilemma-btn">Перейти к дилемме</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Этап 2: Диллема -->
+    <div id="dilemma-container" class="quest-stage hidden">
+        <div class="dilemma-header">
+            <h1>У вас есть последняя доза редкого лекарства и два пациента, которым оно жизненно необходимо.</h1>
+            <p>Изучите их биографии и примите решение о том, кого именно вы спасаете. От вас зависит судьба человечества.</p>
+        </div>
+        <div class="dilemma-choices">
+            <!-- Карточка 1: Подросток -->
+            <div class="character-card">
+                <img src="https://placehold.co/600x400/d7ccc8/5d4037?text=Катя" alt="Портрет Екатерины Морозовой">
+                <div class="character-info">
+                    <h2>Подросток: Екатерина Морозова</h2>
+                    <ul class="character-data">
+                        <li><strong>Возраст:</strong> 20 лет</li>
+                    </ul>
+                    <p>Катя Морозова — не просто одаренный подросток, а настоящий вундеркинд в области нейроинженерии. В свои 20 лет она уже является студенткой второго курса престижного Технического университета, куда поступила по специальной программе для исключительных талантов. Её основной научный интерес сосредоточен на разработке интерфейсов мозг-компьютер (ИМК), способных восстанавливать утраченные неврологические функции. В частности, Катя работает над проектом, который может помочь людям с полным параличом общаться и взаимодействовать с миром, используя только мысли. Её исследования уже привлекли внимание ведущих мировых технологических корпораций, и ей неоднократно предлагали гранты и стажировки, от которых она, однако, отказывалась, предпочитая завершить свой текущий проект.</p>
+                    <p>Помимо выдающихся академических достижений, Катя — удивительно эмпатичный и социально ответственный человек. Её проект по ИМК был вдохновлен личной трагедией — несчастным случаем, парализовавшим её младшего брата. Этот опыт глубоко повлиял на неё, придав её научным поискам не только интеллектуальную, но и глубоко личную мотивацию. В свободное от учебы время она волонтерит в местных центрах реабилитации, помогая детям с ограниченными возможностями осваивать новые технологии и программы, демонстрируя свою приверженность практическому применению своих знаний. Она мечтает о мире, где технологии служат для улучшения качества жизни каждого человека, независимо от его физических ограничений. Катя не имеет близких родственников, кроме парализованного брата и старенькой бабушки, которые полностью зависят от её будущего успеха.</p>
+                </div>
+            </div>
+            <!-- Карточка 2: Ученый -->
+            <div class="character-card">
+                <img src="https://placehold.co/600x400/d7ccc8/5d4037?text=Профессор" alt="Портрет Профессора Кудряшова">
+                <div class="character-info">
+                    <h2>Ученый: Профессор Кудряшов И.С.</h2>
+                    <ul class="character-data">
+                        <li><strong>Возраст:</strong> 70 лет</li>
+                    </ul>
+                    <p>Профессор — легенда в области эпидемиологии и вирусологии, признанный одним из ключевых архитекторов глобальных протоколов по борьбе с пандемиями, применяемых Всемирной организацией здравоохранения (ВОЗ). За свою 50-летнюю карьеру он участвовал в разработке вакцин против нескольких смертельных вирусов, включая лихорадку Эбола и редкие тропические болезни, спасши бесчисленное множество жизней. Его труды по моделированию распространения инфекций стали основой для современных систем раннего предупреждения и предотвращения пандемий.</p>
+                    <p>Его знания и опыт в этой области незаменимы, так как он является единственным, кто досконально понимает уникальную генетическую структуру вируса и потенциальные подходы к его нейтрализации. Профессор страдает от редкого генетического заболевания, которое медленно разрушает его иммунную систему, и именно для лечения этого заболевания и нужна последняя доза редкого лекарства. У него нет семьи; всю свою жизнь он посвятил науке и человечеству. В последние годы он жил уединенно, полностью поглощенный своей работой над противоядием, осознавая критическую важность своей миссии для будущего человечества.</p>
+                </div>
+            </div>
+        </div>
+        <div class="dilemma-buttons">
+            <button id="save-katya-btn" class="choice-btn">Спасти Катю</button>
+            <button id="save-kudryashov-btn" class="choice-btn">Спасти Кудряшова</button>
+        </div>
+    </div>
+
+    <!-- Этап 3: Результат -->
+    <div id="result-container" class="quest-stage hidden">
+        <!-- Результат для Кати -->
+        <div id="result-katya" class="result-content hidden">
+            <h1>Вы спасли Катю</h1>
+            <h3>Сильные стороны решения</h3>
+            <ul>
+                <li><strong>Инвестиции в долгосрочный потенциал:</strong> Спасение Кати — это прямая инвестиция в будущее. Её выдающиеся способности в нейроинженерии и работа над проектом по ИМК обещают кардинальное улучшение жизни людей с параличом. Её огромный потенциал к инновациям может принести пользу миллионам в долгосрочной перспективе, формируя будущее медицинских технологий. Она представляет следующее поколение научных лидеров.</li>
+                <li><strong>Эмпатия и человечность:</strong> Выбор спасти молодую жизнь, полную надежд, часто воспринимается как глубоко эмпатичный. Это отражает веру в ценность каждой жизни, особенно той, что только начинается. Её личная история, связанная с помощью брату, усиливает желание дать ей шанс реализовать её благородную цель.</li>
+                <li><strong>Гибкость инноваций:</strong> Катя, как молодой гений, обладает высокой гибкостью мышления и адаптивностью. Её исследования не привязаны к конкретной текущей проблеме, что позволяет ей стать катализатором прорывов в самых разных областях медицины, которые ещё даже не существуют.</li>
+            </ul>
+            <h3>Слабые стороны решения "Спасти Катю"</h3>
+            <ul>
+                <li><strong>Потеря уникального, реализованного опыта:</strong> Профессор — лауреат Нобелевской премии с 50-летним опытом, уже спасший бесчисленное множество жизней. Его текущая работа над новыми методами лечения редких аутоиммунных заболеваний критически важна. Его смерть означает потерю не просто большого учёного, а целой эпохи знаний, уникального опыта и, возможно, уже накопленных, но ещё не опубликованных открытий, незаменимых для миллионов страдающих.</li>
+                <li><strong>Неопределенность потенциала:</strong> Хотя потенциал Кати огромен, он всё ещё потенциал. Нет гарантий, что она достигнет того же масштаба влияния, что и профессор, или что её открытия будут столь же глобальными. Её будущие успехи остаются гипотетическими, в то время как вклад профессора уже доказан.</li>
+                <li><strong>Приоритет "потенциального" над "существующим" благом:</strong> С этической точки зрения, возникает вопрос о том, что важнее: доказанное, существенное благо профессора или потенциальное благо Кати. Некоторые этические рамки могут отдать приоритет сохранению того, что уже приносит пользу, особенно если этот вклад незаменим.</li>
+            </ul>
+            <p class="conclusion"><strong>Выводы:</strong> Выбор спасти Катю является актом веры в потенциал и будущее, но он сопряжен с потерей незаменимого опыта и текущих, жизненно важных исследований, которые уже сегодня могли бы спасти жизни или улучшить их качество.</p>
+        </div>
+        <!-- Результат для Кудряшова -->
+        <div id="result-kudryashov" class="result-content hidden">
+            <h1>Вы спасли профессора Кудряшова</h1>
+            <h3>Сильные стороны решения "Спасти Профессора"</h3>
+            <ul>
+                <li><strong>Сохранение уникальных знаний:</strong> Профессор — Нобелевский лауреат с 50-летним опытом. Его текущие исследования новых методов лечения редких аутоиммунных заболеваний уникальны. Спасение профессора означает сохранение критически важных знаний, которые могут быть утеряны навсегда, что задержит разработку жизненно важных методов лечения для миллионов.</li>
+                <li><strong>Доказанный и текущий вклад:</strong> В отличие от потенциальных будущих открытий, профессор уже доказал свою способность спасать жизни и влиять на глобальное здравоохранение. Он архитектор глобальных протоколов ВОЗ и разработал вакцины против смертельных вирусов. Его текущие исследования имеют прямое, ощутимое значение для страдающих сейчас.</li>
+                <li><strong>Опыт и мудрость:</strong> Многолетний опыт профессора в исследованиях и управлении проектами бесценен. Он может направлять новые поколения учёных, обеспечивая преемственность в критически важных областях медицины.</li>
+                <li><strong>Фокус на непосредственной пользе:</strong> Решение спасти профессора ориентировано на получение непосредственной пользы для страдающих от редких заболеваний. Это прагматичный подход, направленный на решение существующих проблем.</li>
+            </ul>
+            <h3>Слабые стороны решения "Спасти Профессора"</h3>
+            <ul>
+                <li><strong>Потеря огромного потенциала будущего:</strong> Отказываясь спасти Катю, вы жертвуете огромным, нереализованным потенциалом молодого вундеркинда. Её работа в нейроинженерии может привести к революционным открытиям, которые изменят качество жизни миллионов людей с параличом. Это упущенная возможность для будущего прогресса.</li>
+                <li><strong>Эмоциональный аспект:</strong> Решение спасти 70-летнего учёного вместо 20-летнего подростка может быть воспринято как менее человечное или эмпатичное. Общество часто сочувствует молодым жизням с исключительным потенциалом.</li>
+                <li><strong>Ограниченное время жизни:</strong> У профессора, в силу возраста, вероятно, осталось меньше лет активной работы, чем у Кати. Его будущий вклад, хотя и значителен, будет ограничен временными рамками.</li>
+            </ul>
+            <p class="conclusion"><strong>Выводы:</strong> Выбор спасти профессора Кудряшова – это рациональное решение, направленное на сохранение уникального опыта и текущих, критически важных исследований. Однако оно сопряжено с потерей огромного потенциала будущего.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Элементы Этапа 1 ---
+            const riddleContainer = document.getElementById('riddle-container');
+            const formContainer = document.getElementById('input-form');
+            const inputField = document.getElementById('profession-input');
+            const submitButton = document.getElementById('submit-btn');
+            const nurseCard = document.getElementById('character-card-nurse');
+            const dilemmaBtn = document.getElementById('dilemma-btn');
+            
+            // --- Элементы Этапа 2 ---
+            const dilemmaContainer = document.getElementById('dilemma-container');
+            const saveKatyaBtn = document.getElementById('save-katya-btn');
+            const saveKudryashovBtn = document.getElementById('save-kudryashov-btn');
+
+            // --- Элементы Этапа 3 ---
+            const resultContainer = document.getElementById('result-container');
+            const resultKatya = document.getElementById('result-katya');
+            const resultKudryashov = document.getElementById('result-kudryashov');
+
+            const correctAnswer = 'медсестра';
+
+            // --- ОБРАБОТЧИКИ СОБЫТИЙ ---
+            submitButton.addEventListener('click', handleCheck);
+            inputField.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleCheck();
+                }
+            });
+            dilemmaBtn.addEventListener('click', showDilemma);
+            saveKatyaBtn.addEventListener('click', () => showResult('katya'));
+            saveKudryashovBtn.addEventListener('click', () => showResult('kudryashov'));
+
+            // --- ЛОГИКА ---
+            function handleCheck() {
+                const userAnswer = inputField.value.trim().toLowerCase();
+                if (userAnswer === correctAnswer) {
+                    showNurseCard();
+                } else {
+                    handleIncorrectAnswer();
+                }
+            }
+
+            function showNurseCard() {
+                formContainer.style.opacity = '0';
+                setTimeout(() => {
+                    formContainer.style.display = 'none';
+                    nurseCard.classList.add('visible');
+                    dilemmaBtn.style.display = 'block';
+                }, 500);
+            }
+
+            function handleIncorrectAnswer() {
+                inputField.classList.add('shake-animation');
+                inputField.value = '';
+                inputField.placeholder = 'Неверно, попробуй ещё раз';
+                setTimeout(() => {
+                    inputField.classList.remove('shake-animation');
+                }, 500);
+            }
+            
+            function showDilemma() {
+                riddleContainer.classList.add('hidden');
+                setTimeout(() => {
+                    dilemmaContainer.classList.remove('hidden');
+                }, 100);
+            }
+
+            function showResult(choice) {
+                dilemmaContainer.classList.add('hidden');
+                setTimeout(() => {
+                    resultContainer.classList.remove('hidden');
+                    if (choice === 'katya') {
+                        resultKatya.classList.remove('hidden');
+                    } else {
+                        resultKudryashov.classList.remove('hidden');
+                    }
+                }, 100);
+            }
+        });
+    </script>
+
+</body>
+</html>
